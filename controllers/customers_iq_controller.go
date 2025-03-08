@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/DaffaAudyaPramana/database"
-	"github.com/DaffaAudyaPramana/models"
+	"github.com/DaffaAudyaPramana/tesiqbe/database"
+	"github.com/DaffaAudyaPramana/tesiqbe/models"
 
 	"github.com/gin-gonic/gin"
 )

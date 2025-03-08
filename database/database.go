@@ -1,7 +1,7 @@
 package database
 
 import (
-	"your_project/models"
+	"github.com/DaffaAudyaPramana/tesiqbe/models"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

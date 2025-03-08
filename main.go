@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/DaffaAudyaPramana/controllers"
-	"github.com/DaffaAudyaPramana/database"
+	"github.com/DaffaAudyaPramana/tesiqbe/controllers"
+	"github.com/DaffaAudyaPramana/tesiqbe/database"
 	"github.com/gin-gonic/gin"
 )
 
