@@ -46,7 +46,7 @@ func main() {
 
 	// CORS configuration (for development)
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:5500"} // Allow specific origin
+	config.AllowOrigins = []string{"http://localhost:5501"} // Allow specific origin
 	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"}
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	config.AllowCredentials = true
