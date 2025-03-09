@@ -16,5 +16,5 @@ func InitDB() {
 		panic("Failed to connect to database")
 	}
 	DB = db
-	DB.AutoMigrate(&models.IQ{}, &models.IQQuestion{}, &models.IQScore{}, &models.CustomersIq{})
+	DB.AutoMigrate(&models.IQ{}, &models.IQQuestion{})
 }
