@@ -3,15 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/DaffaAudyaPramana/tesiqbe/controllers"
 	"github.com/DaffaAudyaPramana/tesiqbe/models"
 
-	"encoding/json"
-	"io/ioutil"
-
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -19,7 +16,7 @@ import (
 
 func main() {
 	// Initialize MySQL connection
-	dsn := "root:@tcp(127.0.0.1:3306)/iq_test?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := os.Getenv("MYSQL_DSN") // Ambil DSN dari environment variable
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to MySQL database: %v", err)
@@ -41,29 +38,23 @@ func main() {
 		log.Fatalf("Failed to automigrate MySQL database: %v", err)
 	}
 
-	// Load questions from JSON
-	questions, err := loadQuestions("iq_questions.json")
-	if err != nil {
-		log.Fatalf("Failed to load questions: %v", err)
-	}
-
-	// Seed the database with questions
-	err = seedQuestions(db, questions)
-	if err != nil {
-		log.Fatalf("Failed to seed questions to database: %v", err)
-	}
-
 	// Initialize controllers
 	questionController := controllers.NewQuestionController(db)
 
 	// Initialize router
 	router := gin.Default()
 
+	// CORS configuration (for development)
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:5500"} // Allow specific origin
+	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"}
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	config.AllowCredentials = true
+
+	router.Use(cors.New(config))
+
 	// Define routes
 	router.GET("/questions", questionController.GetQuestions)
-	router.GET("/test", func(c *gin.Context) {
-		c.JSON(http.StatusOK, questions)
-	})
 
 	// Run the server
 	port := os.Getenv("PORT")
@@ -75,40 +66,4 @@ func main() {
 	if err := router.Run(fmt.Sprintf(":%s", port)); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
-}
-
-func loadQuestions(filename string) ([]models.IQQuestion, error) {
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read file: %w", err)
-	}
-
-	var questions []models.IQQuestion
-	err = json.Unmarshal(data, &questions)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
-	}
-
-	return questions, nil
-}
-
-func seedQuestions(db *gorm.DB, questions []models.IQQuestion) error {
-	// Check if questions are already seeded
-	var count int64
-	db.Model(&models.IQQuestion{}).Count(&count)
-
-	if count > 0 {
-		log.Println("Questions are already seeded. Skipping seeding.")
-		return nil
-	}
-
-	// Seed questions to the database
-	for _, question := range questions {
-		if err := db.Create(&question).Error; err != nil {
-			return fmt.Errorf("failed to create question: %w", err)
-		}
-	}
-
-	log.Println("Successfully seeded questions to database.")
-	return nil
 }
