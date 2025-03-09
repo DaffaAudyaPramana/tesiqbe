@@ -10,7 +10,7 @@ import (
 )
 
 func GetIqList(c *gin.Context) {
-	var iqList []models.Iq
+	var iqList []models.IQ
 	database.DB.Preload("Customers").Find(&iqList)
 	c.JSON(http.StatusOK, iqList)
 }

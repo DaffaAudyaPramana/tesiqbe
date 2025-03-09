@@ -12,4 +12,10 @@ type CustomersIq struct {
 	Answers    string    `gorm:"type:JSON" json:"answers"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+
+	// Relasi ke Customer
+	Customer Customer `gorm:"foreignKey:CustomerID" json:"customer"`
+
+	// Relasi ke IQ
+	IQ IQ `gorm:"foreignKey:IQID" json:"iq"`
 }
