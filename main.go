@@ -6,11 +6,11 @@ import (
 	"os"
 
 	"github.com/DaffaAudyaPramana/tesiqbe/controllers"
-	"github.com/DaffaAudyaPramana/tesiqbe/models"
 
 	"encoding/json"
 	"io/ioutil"
 
+	"github.com/DaffaAudyaPramana/tesiqbe/models"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"

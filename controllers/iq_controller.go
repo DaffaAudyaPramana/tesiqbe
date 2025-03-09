@@ -26,5 +26,6 @@ func (qc *QuestionController) GetQuestions(c *gin.Context) {
 		return
 	}
 
+	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusOK, questions)
 }
