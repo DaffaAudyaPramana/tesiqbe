@@ -18,7 +18,7 @@ func NewQuestionController(db *gorm.DB) *QuestionController {
 }
 
 func (qc *QuestionController) GetQuestions(c *gin.Context) {
-	var questions []models.IQQuestion
+	var questions []models.IqQuestions
 
 	if err := qc.DB.Find(&questions).Error; err != nil {
 		log.Printf("Failed to fetch questions from database: %v", err)

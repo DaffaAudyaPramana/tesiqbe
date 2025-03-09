@@ -1,7 +1,9 @@
 package models
 
-type IQQuestion struct {
-	ID        string `json:"id"` // Ubah tipe data menjadi string
+import "gorm.io/gorm"
+
+type IqQuestions struct {
+	gorm.Model
 	Question  string `json:"question"`
 	Image     string `json:"image"`
 	AnswerKey string `json:"answer_key"`
