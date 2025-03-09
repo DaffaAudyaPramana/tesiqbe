@@ -10,11 +10,11 @@ import (
 var DB *gorm.DB
 
 func InitDB() {
-	dsn := "user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "user:password@tcp(127.0.0.1:8000)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database")
 	}
 	DB = db
-	DB.AutoMigrate(&models.Iq{}, &models.IqQuestions{}, &models.IqScores{}, &models.CustomersIq{})
+	DB.AutoMigrate(&models.Iq{}, &models.IqQuestions{}, &models.IqScore{}, &models.CustomersIq{})
 }

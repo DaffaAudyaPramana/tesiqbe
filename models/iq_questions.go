@@ -1,10 +1,14 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+)
 
-type IqQuestions struct {
-	gorm.Model
-	Question  string `json:"question"`
-	Image     string `json:"image"`
-	AnswerKey string `json:"answer_key"`
+type IQQuestion struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Question  string    `gorm:"type:TEXT" json:"question"`
+	Image     string    `gorm:"type:LONGTEXT" json:"image"`
+	AnswerKey string    `gorm:"size:255" json:"answer_key"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

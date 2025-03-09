@@ -1,67 +1,46 @@
 package controllers
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/DaffaAudyaPramana/tesiqbe/database"
 	"github.com/DaffaAudyaPramana/tesiqbe/models"
-
+	"github.com/DaffaAudyaPramana/tesiqbe/util"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func GetCustomersIqList(c *gin.Context) {
-	var customersIq []models.CustomersIq
-	database.DB.Preload("Customer").Preload("Iq").Find(&customersIq)
-
-	for i := range customersIq {
-		customersIq[i].Customer.BirthDate = formatBirthDate(customersIq[i].Customer.BirthDate)
-		customersIq[i].Customer.Region = formatRegion(customersIq[i].Customer)
-	}
-
-	c.JSON(http.StatusOK, customersIq)
+type CustomersIQController struct {
+	DB *gorm.DB
 }
 
-func StoreCustomersIq(c *gin.Context) {
-	var request struct {
-		CustomerID int    `json:"customer_id"`
-		Answers    string `json:"answers"`
-	}
+func NewCustomersIQController(db *gorm.DB) *CustomersIQController {
+	return &CustomersIQController{DB: db}
+}
 
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func (c *CustomersIQController) GetCustomersIQ(ctx *gin.Context) {
+	var customersIQ []models.CustomersIq
+
+	if err := c.DB.Preload("Customer").Preload("IQ").Find(&customersIQ).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
 
-	var iqQuestions []models.IqQuestions
-	database.DB.Find(&iqQuestions)
-
-	var score int
-	answers := []string{}
-	json.Unmarshal([]byte(request.Answers), &answers)
-
-	for i, answer := range answers {
-		if iqQuestions[i].AnswerKey == answer {
-			score++
-		}
+	var response []map[string]interface{}
+	for _, iq := range customersIQ {
+		response = append(response, map[string]interface{}{
+			"id": iq.ID,
+			"customer": map[string]interface{}{
+				"name":       iq.Customer.FirstName + " " + iq.Customer.LastName,
+				"birth_date": util.FormatBirthDate(iq.Customer.BirthDate),
+				"region":     util.FormatRegion("Village Name", "District Name", "Regency Name", "Province Name"),
+			},
+			"iq":          iq.IQ,
+			"customer_iq": iq.CustomerIQ,
+			"answers":     iq.Answers,
+			"created_at":  iq.CreatedAt.Format("02-01-2006 15:04:05"),
+			"updated_at":  iq.UpdatedAt.Format("02-01-2006 15:04:05"),
+		})
 	}
 
-	var iqScore models.IqScores
-	database.DB.Where("score = ?", score).First(&iqScore)
-
-	if iqScore.IQ == 0 {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Silakan jawab dengan jujur"})
-		return
-	}
-
-	newCustomerIq := models.CustomersIq{
-		CustomerID: request.CustomerID,
-		IqID:       iqScore.ID,
-		CustomerIq: iqScore.IQ,
-		Answers:    request.Answers,
-	}
-
-	database.DB.Create(&newCustomerIq)
-
-	c.JSON(http.StatusCreated, gin.H{"success": true, "message": "Test IQ telah selesai"})
+	ctx.JSON(http.StatusOK, response)
 }
